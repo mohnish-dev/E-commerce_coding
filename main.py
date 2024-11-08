@@ -62,6 +62,18 @@ def mainMenu(user, cart, inventory, history):
 
             print("Successful logout.")
 
+        # looking at inventory options
+        if(option == "2"):
+            print("Inventory Menu:") #anticipating other functions
+            print("0. View Inventory") #only one done so far
+            print()
+            i_option = input("Enter your menu choice: ")
+
+            if(i_option == "0"):
+                inventory.viewInventory()
+                #this will loop back to the main while loop afterwards; may create
+                #another while loop just for the inventory menu
+
         ## incorrect menu option
         else:
             print("That's not a menu option. Please try again.")
