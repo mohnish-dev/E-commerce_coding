@@ -1,89 +1,10 @@
-from user import *
-from cart import *
-from inventory import *
-from history import *
-
-
-## COMPLETE initial pre-login menu
-def initialMenu():
-    ## objects for the classes
-    user = User()
-    cart = Cart()
-    inventory = Inventory()
-    history = OrderHistory()
-
-    ## initial menu
-    while(1):
-        print("Pre-Login Menu:")
-        print("0. Login")
-        print("1. Create Account")
-        print("2. Exit Program")
-        initial = input("Enter your menu choice: ")
-        print()
-
-        if(initial == "0"):
-            user.login()
-
-        elif(initial == "1"):
-            user.createAccount()
-
-        ## exit program
-        elif(initial == "2"):
-            print("Good-bye!")
-            break
-
-        ## incorrect menu option
-        else:
-            print("That's not a menu option. Please try again.")
-
-        print()
-
-        ## checks status after one menu loop...
-        ## goes into main menu if applicable
-        if(user.getLoggedIn()):
-            mainMenu(user, cart, inventory, history)
-
-
-## incomplete main menu...
-def mainMenu(user, cart, inventory, history):
-    while(user.getLoggedIn()):
-        print("Main Menu:")
-        print("0. Logout")
-        print("1. View Account Information")
-        print("2. Inventory Information")
-        print("3. Cart Information")
-        print("4. Order Information")
-        option = input("Enter your menu choice: ")
-        print()
-
-        ## logging out
-        if(option == "0"):
-            user.logout()
-
-            print("Successful logout.")
-
-        # looking at inventory options
-        if(option == "2"):
-            print("Inventory Menu:") #anticipating other functions
-            print("0. View Inventory") #only one done so far
-            print()
-            i_option = input("Enter your menu choice: ")
-
-            if(i_option == "0"):
-                inventory.viewInventory()
-                #this will loop back to the main while loop afterwards; may create
-                #another while loop just for the inventory menu
-
-        ## incorrect menu option
-        else:
-            print("That's not a menu option. Please try again.")
-
-        print()
-
+import OrderHistory
 
 def main():
-    print("Welcome to the online bookstore!\n")
+    order1 = OrderHistory.OrderHistory(totalAmount=150, customerID=101)
+    print("Total Amount: ", order1.getTotalAmount())
 
-    initialMenu()
 
-main()
+
+if __name__ == "__main__":
+    main()
