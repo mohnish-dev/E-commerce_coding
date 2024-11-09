@@ -4,14 +4,6 @@ from inventory import *
 import sys
 
 
-def convertTuple(tuple):
-        result = ""
-        for i in tuple:
-            for i in list:
-                result = result + i
-        result = int(result)
-        return result
-
 class Cart:
 
 #constuctor with database name
