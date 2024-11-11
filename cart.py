@@ -1,18 +1,16 @@
 import sqlite3
-from user import *
-from inventory import *
 import sys
 
 
 class Cart:
 
 #constuctor with database name
-    def __init__(self, user, inventory, databaseName = "methods.db"):
+    def __init__(self, databaseName = "methods.db"):
         self.databaseName = databaseName
-        self.user = user
-        self.inventory = inventory
 
-    def cartAdd(self,user, inventory, item, quantity):
+    #def viewCart(userID):
+
+    def addToCart(self,userID, ISBN, quantity = 1):
 
         #making sure we can connect to the database
         try:
@@ -24,32 +22,26 @@ class Cart:
             ## exits the program if unsuccessful
             sys.exit()
 
-        booksTitleQuery = "SELECT Title FROM Inventory WHERE Title=?"
-        data = (item,)
+        bookISBNQuery = "SELECT ISBN FROM Inventory WHERE ISBN=?"
+        data = (ISBN,)
 
         cursor = connection.cursor()
 
-        cursor.execute(booksTitleQuery, data)
+        cursor.execute(bookISBNQuery, data)
         result = cursor.fetchall()
 
         if(len(result) == 0):
-            print("That books is not in our inventory.")
+            print("That book is not in our inventory.")
         elif(len(result) >= 1):
-            bookQuantityQuery = "SELECT Stock FROM Inventory WHERE Title=?"
+            data = (ISBN,)
+            bookQuantityQuery = "SELECT Stock FROM Inventory WHERE ISBN=?"
             cursor.execute(bookQuantityQuery, data)
             result = cursor.fetchall()
             bookQuantity = result[0][0]
 
             if(quantity < bookQuantity):
-                bookISBNQuery = "SELECT ISBN FROM Inventory WHERE Title=?"
-                cursor.execute(bookISBNQuery, data)
-                result = cursor.fetchall()
-                isbnNumber = result[0][0]
-                print(isbnNumber)
                 bookAddQuery = "INSERT INTO Cart (UserID, ISBN, Quantity) VALUES (?, ?, ?)"
-                userID = user.getUserID()
-                data = (userID, isbnNumber, quantity)
-                #data = ('12-90909', '090909093', '3')
+                data = (userID, ISBN, quantity)
                 cursor.execute(bookAddQuery, data)
                 connection.commit()
                 print("Item was added successfully!")
@@ -57,4 +49,38 @@ class Cart:
                 print("There are no more books in stock.")
             else:
                 print("There are not enough books in stock.")
+
+    def removeFromCart(self, userID, ISBN):
+        try:
+            connection = sqlite3.connect(self.databaseName)
+
+        except:
+            print("Failed database connection.")
+
+            ## exits the program if unsuccessful
+            sys.exit()
+
+        ISBNCartQuery = "SELECT ISBN FROM Cart WHERE ISBN=?"
+        data = (ISBN,)
+
+        cursor = connection.cursor()
+
+        cursor.execute(ISBNCartQuery, data)
+        result = cursor.fetchall()
+
+        if(len(result) == 0):
+            print("That book is not in your cart.")
+        
+        elif(len(result) >= 1):
+            removeBookQuery = "DELETE FROM Cart WHERE ISBN=?"
+            data = (ISBN,)
+
+            cursor = connection.cursor()
+            cursor.execute(removeBookQuery, data)
+            connection.commit()
+            print("Book successfully removed.")
+
+
+
+    #def checkOut(userID):
             

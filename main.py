@@ -8,8 +8,8 @@ from history import *
 def initialMenu():
     ## objects for the classes
     user = User()
+    cart = Cart()
     inventory = Inventory()
-    cart = Cart(user, inventory)
     history = OrderHistory()
 
     ## initial menu
@@ -78,17 +78,24 @@ def mainMenu(user, cart, inventory, history):
         if(option == "3"):
             print("Cart Menu:")
             print("0. Add to Cart")
-            print()
+            print("1. Remove from Cart")
 
             print("Enter your menu choice: " , end = "")
             c_input = input()
 
             if (c_input == "0"):
-                print("What item would you like to add to your cart: ", end = "")
-                cart_item = input()
-                print("How many {cart_item} books would you like to add to your cart: ", end = "")
-                cart_item_quantity = int(input())
-                cart.cartAdd(user,inventory, cart_item, cart_item_quantity)
+                print("What book (based on ISBN number) would you like to add to your cart: ", end = "")
+                ISBN = input()
+
+                print("How many books would you like to add to your cart: ", end = "")
+                quantity = int(input())
+                userID = user.getUserID()
+                cart.addToCart(userID, ISBN, quantity)
+            elif (c_input == "1"):
+                print("What book (based on ISBN number) would you like to remove from your cart: ", end = "")
+                ISBN = input()
+                userID = user.getUserID()
+                cart.removeFromCart(userID, ISBN)
 
         ## incorrect menu option
         else:
