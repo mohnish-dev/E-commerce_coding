@@ -65,8 +65,9 @@ def mainMenu(user, cart, inventory, history):
         # looking at inventory options
         if(option == "2"):
             print("Inventory Menu:") #anticipating other functions
-            print("0. View Inventory") #only one done so far
+            print("0. View Inventory")
             print("1. Search Inventory (for a specific item)")
+            print("2. Test Decrease Inventory") #won't be in the final version, but just to test the function
             print()
             i_option = input("Enter your menu choice: ")
 
@@ -77,6 +78,13 @@ def mainMenu(user, cart, inventory, history):
 
             if(i_option == "1"):
                 inventory.searchInventory()
+
+            if(i_option == "2"):
+                #need ISBN and quantity to pass to decreaseStock
+                #has to be a tuple because sqlite3
+                ISBN = (input("\nWhat ISBN do you want to decrease the stock of? "),)
+                quantity = int(input("How much do you want to decrease it by? "))
+                inventory.decreaseStock(ISBN, quantity)
 
         ## incorrect menu option
         else:
