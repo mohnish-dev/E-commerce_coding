@@ -79,11 +79,14 @@ def mainMenu(user, cart, inventory, history):
             print("Cart Menu:")
             print("0. Add to Cart")
             print("1. Remove from Cart")
+            print("2. Checkout Items in Cart")
 
             print("Enter your menu choice: " , end = "")
             c_input = input()
 
             if (c_input == "0"):
+                print("Here is the current inventory of books:")
+                inventory.viewInventory()
                 print("What book (based on ISBN number) would you like to add to your cart: ", end = "")
                 ISBN = input()
 
@@ -96,6 +99,9 @@ def mainMenu(user, cart, inventory, history):
                 ISBN = input()
                 userID = user.getUserID()
                 cart.removeFromCart(userID, ISBN)
+            elif (c_input == "2"):
+                userID = user.getUserID()
+                cart.checkOut(userID)
 
         ## incorrect menu option
         else:
