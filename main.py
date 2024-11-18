@@ -65,7 +65,9 @@ def mainMenu(user, cart, inventory, history):
         # looking at inventory options
         if(option == "2"):
             print("Inventory Menu:") #anticipating other functions
-            print("0. View Inventory") #only one done so far
+            print("0. View Inventory")
+            print("1. Search Inventory (for a specific item)")
+            print("2. Test Decrease Inventory") #won't be in the final version, but just to test the function
             print()
             i_option = input("Enter your menu choice: ")
 
@@ -74,18 +76,42 @@ def mainMenu(user, cart, inventory, history):
                 #this will loop back to the main while loop afterwards; may create
                 #another while loop just for the inventory menu
 
+            if(i_option == "1"):
+                inventory.searchInventory()
+
+            if(i_option == "2"):
+                #need ISBN and quantity to pass to decreaseStock
+                #has to be a tuple because sqlite3
+                ISBN = (input("\nWhat ISBN do you want to decrease the stock of? "),)
+                quantity = int(input("How much do you want to decrease it by? "))
+                inventory.decreaseStock(ISBN, quantity)
+
         #looking at cart options
         if(option == "3"):
             print("Cart Menu:")
-            print("0. Add to Cart")
-            print("1. Remove from Cart")
-            print("2. Checkout Items in Cart")
+            print("0. Go back")
+            print("1. View Cart")
+            print("2. Add items to Cart")
+            print("3. Remove an Item from Cart")
+            print("4. Check Out")
+            print()
 
             print("Enter your menu choice: " , end = "")
             c_input = input()
+            print()
 
             if (c_input == "0"):
+                continue
+
+            if (c_input == "1"):
+                print("Here are the items in your cart:")
+                userID = user.getUserID()
+                cart.viewCart(userID)
+
+            elif (c_input == "2"):
+                print()
                 print("Here is the current inventory of books:")
+                print()
                 inventory.viewInventory()
                 print("What book (based on ISBN number) would you like to add to your cart: ", end = "")
                 ISBN = input()
@@ -94,12 +120,14 @@ def mainMenu(user, cart, inventory, history):
                 quantity = int(input())
                 userID = user.getUserID()
                 cart.addToCart(userID, ISBN, quantity)
-            elif (c_input == "1"):
+
+            elif (c_input == "3"):
                 print("What book (based on ISBN number) would you like to remove from your cart: ", end = "")
                 ISBN = input()
                 userID = user.getUserID()
                 cart.removeFromCart(userID, ISBN)
-            elif (c_input == "2"):
+
+            elif (c_input == "4"):
                 userID = user.getUserID()
                 cart.checkOut(userID)
 
