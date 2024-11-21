@@ -1,11 +1,6 @@
 import sqlite3
 import sys
-"""
-To-do:
-- Error checking
-- Making your inventory stuff work with the main while loop
-- Close
-"""
+
 class Inventory:
 
     #constructor, passes the database name
@@ -97,17 +92,14 @@ class Inventory:
         connection.close()
 
     def decreaseStock(self, ISBN, quantity = 1):
-        #making sure we can connect to the database
         try:
             connection = sqlite3.connect(self.databaseName)
 
         except:
             print("Failed database connection.")
 
-            ## exits the program if unsuccessful
             sys.exit()
 
-        ## cursor to send queries through
         cursor = connection.cursor()
 
         #our query for getting the stock
@@ -164,9 +156,8 @@ class Inventory:
         try:
             connection = sqlite3.connect(self.databaseName)
         except:
-            print("Failed database connection.")
-            sys.exit()
-        #I wasn't sure how to create one function that would get whatever value was needed from Inventory table
+            print("Failed database connection.");sys.exit()
+        #I wasn't sure how to create one, singular function that would get whatever value was needed from Inventory table
         #but I didn't want all these getters bloating my code...
         #so I put everything on one line separated by semicolons :)
         #it's the same code as getTitle, just with Author instead of Title
@@ -176,38 +167,33 @@ class Inventory:
         try:
             connection = sqlite3.connect(self.databaseName)
         except:
-            print("Failed database connection.")
-            sys.exit()
+            print("Failed database connection.");sys.exit()
         cursor = connection.cursor();query = "SELECT Genre FROM Inventory WHERE ISBN=?";data = (ISBN,);cursor.execute(query, data);result = cursor.fetchall();cursor.close();connection.close();return result[0][0]
     
     def getPages(self, ISBN):
         try:
             connection = sqlite3.connect(self.databaseName)
         except:
-            print("Failed database connection.")
-            sys.exit()
+            print("Failed database connection.");sys.exit()
         cursor = connection.cursor();query = "SELECT Pages FROM Inventory WHERE ISBN=?";data = (ISBN,);cursor.execute(query, data);result = cursor.fetchall();cursor.close();connection.close();return result[0][0]
     
     def getReleaseDate(self, ISBN):
         try:
             connection = sqlite3.connect(self.databaseName)
         except:
-            print("Failed database connection.")
-            sys.exit()
+            print("Failed database connection.");sys.exit()
         cursor = connection.cursor();query = "SELECT ReleaseDate FROM Inventory WHERE ISBN=?";data = (ISBN,);cursor.execute(query, data);result = cursor.fetchall();cursor.close();connection.close();return result[0][0]
     
     def getPrice(self, ISBN):
         try:
             connection = sqlite3.connect(self.databaseName)
         except:
-            print("Failed database connection.")
-            sys.exit()
+            print("Failed database connection.");sys.exit()
         cursor = connection.cursor();query = "SELECT Price FROM Inventory WHERE ISBN=?";data = (ISBN,);cursor.execute(query, data);result = cursor.fetchall();cursor.close();connection.close();return result[0][0]
 
     def getStock(self, ISBN):
         try:
             connection = sqlite3.connect(self.databaseName)
         except:
-            print("Failed database connection.")
-            sys.exit()        
+            print("Failed database connection.");sys.exit()        
         cursor = connection.cursor();query = "SELECT Stock FROM Inventory WHERE ISBN=?";data = (ISBN,);cursor.execute(query, data);result = cursor.fetchall();cursor.close();connection.close();return result[0][0]
