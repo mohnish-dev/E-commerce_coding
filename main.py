@@ -64,27 +64,27 @@ def mainMenu(user, cart, inventory, history):
 
         # looking at inventory options
         if(option == "2"):
-            print("Inventory Menu:") #anticipating other functions
-            print("0. View Inventory")
-            print("1. Search Inventory (for a specific item)")
-            print("2. Test Decrease Inventory") #won't be in the final version, but just to test the function
-            print()
-            i_option = input("Enter your menu choice: ")
+            #initializing our option variable so that it's != 0
+            i_option = "Not 0"
+            while(i_option != "0"):
+                print("Inventory Menu:")
+                print("0. Go Back")
+                print("1. View Inventory")
+                print("2. Search Inventory (for a specific item)")
+                print()
+                i_option = input("Enter your menu choice: ")
 
-            if(i_option == "0"):
-                inventory.viewInventory()
-                #this will loop back to the main while loop afterwards; may create
-                #another while loop just for the inventory menu
+                if(i_option == "0"):
+                    continue
 
-            if(i_option == "1"):
-                inventory.searchInventory()
+                if(i_option == "1"):
+                    inventory.viewInventory()
 
-            if(i_option == "2"):
-                #need ISBN and quantity to pass to decreaseStock
-                #has to be a tuple because sqlite3
-                ISBN = (input("\nWhat ISBN do you want to decrease the stock of? "),)
-                quantity = int(input("How much do you want to decrease it by? "))
-                inventory.decreaseStock(ISBN, quantity)
+                if(i_option == "2"):
+                    inventory.searchInventory()
+
+                else:
+                    print("Oops, you didn't enter a valid menu option. Please try again.")
 
         ## incorrect menu option
         else:
