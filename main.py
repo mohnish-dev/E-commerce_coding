@@ -62,32 +62,35 @@ def mainMenu(user, cart, inventory, history):
 
             print("Successful logout.")
 
+        #account info
+        elif(option == "1"):
+            user.viewAccountInformation()
+
         # looking at inventory options
-        if(option == "2"):
+        elif(option == "2"):
             #initializing our option variable so that it's != 0
-            i_option = "Not 0"
-            while(i_option != "0"):
-                print("Inventory Menu:")
-                print("0. Go Back")
-                print("1. View Inventory")
-                print("2. Search Inventory (for a specific item)")
-                print()
-                i_option = input("Enter your menu choice: ")
+            print("Inventory Menu:")
+            print("0. Go Back")
+            print("1. View Inventory")
+            print("2. Search Inventory (for a specific item)")
+            print()
+            i_option = input("Enter your menu choice: ")
 
-                if(i_option == "0"):
-                    continue
+            if(i_option == "0"):
+                continue
 
-                if(i_option == "1"):
-                    inventory.viewInventory()
+            elif(i_option == "1"):
+                inventory.viewInventory()
 
-                if(i_option == "2"):
-                    inventory.searchInventory()
+            elif(i_option == "2"):
+                inventory.searchInventory()
 
-                else:
-                    print("Oops, you didn't enter a valid menu option. Please try again.")
+            else:
+                print("Oops, you didn't enter a valid menu option. Please try again.")
 
         ## incorrect menu option
         else:
+            print(option)
             print("That's not a menu option. Please try again.")
 
         print()
