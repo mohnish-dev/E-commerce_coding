@@ -1,33 +1,36 @@
-from OrderHistory import OrderHistory
+from user import *
+from cart import *
+from inventory import *
+from history import *
 
-def main():
-    # Create an OrderHistory object with initial values
-    order = OrderHistory(totalAmount=100, customerID=1)
-    
-    # Display the initial order details
-    print("Initial order details:")
-    order.display()
-    
-    # Test getTotalAmount and getCustomerID
-    print("\nTesting getters:")
-    print("Total Amount:", order.getTotalAmount())
-    print("Customer ID:", order.getCustomerID())
-    
-    # Test setTotalAmount and setCustomerID
-    print("\nTesting setters:")
-    order.setTotalAmount(200)
-    order.setCustomerID(2)
-    print("Updated order details:")
-    order.display()
-    
-    # Test deleteHistory
-    print("\nTesting deleteHistory:")
-    order.deleteHistory()
-    order.display()
-
-    # Explicitly delete the order object (optional)
-    del order
-    print("Order object deleted explicitly.")
-
-if __name__ == "__main__":
-    main()
+def orderHistoryMenu(user, history):
+    while user.getLoggedIn():
+        print("Order History Menu:")
+        print("0. Go Back")
+        print("1. View Order History")
+        print("2. View Order")
+        print()
+        
+        option = input("Enter your menu choice: ")
+        print()
+        
+        if option == "0":
+            # Return to the main menu
+            break
+        
+        elif option == "1":
+            # View the order history for the logged-in user
+            userID = user.getUserID()
+            history.viewHistory(userID)
+        
+        elif option == "2":
+            # View details of a specific order
+            userID = user.getUserID()
+            orderID = input("Enter the Order ID you want to view: ")
+            print()
+            history.viewOrder(userID, orderID)
+        
+        else:
+            # Handle invalid menu options
+            print("That's not a valid menu option. Please try again.")
+        print()
