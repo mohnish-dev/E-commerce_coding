@@ -63,31 +63,29 @@ def mainMenu(user, cart, inventory, history):
             print("Successful logout.")
 
         # looking at inventory options
-        if(option == "2"):
-            print("Inventory Menu:") #anticipating other functions
-            print("0. View Inventory")
-            print("1. Search Inventory (for a specific item)")
-            print("2. Test Decrease Inventory") #won't be in the final version, but just to test the function
+        elif(option == "2"):
+            #initializing our option variable so that it's != 0
+            print("Inventory Menu:")
+            print("0. Go Back")
+            print("1. View Inventory")
+            print("2. Search Inventory (for a specific item)")
             print()
             i_option = input("Enter your menu choice: ")
 
             if(i_option == "0"):
-                inventory.viewInventory()
-                #this will loop back to the main while loop afterwards; may create
-                #another while loop just for the inventory menu
+                continue
 
-            if(i_option == "1"):
+            elif(i_option == "1"):
+                inventory.viewInventory()
+
+            elif(i_option == "2"):
                 inventory.searchInventory()
 
-            if(i_option == "2"):
-                #need ISBN and quantity to pass to decreaseStock
-                #has to be a tuple because sqlite3
-                ISBN = (input("\nWhat ISBN do you want to decrease the stock of? "),)
-                quantity = int(input("How much do you want to decrease it by? "))
-                inventory.decreaseStock(ISBN, quantity)
+            else:
+                print("Oops, you didn't enter a valid menu option. Please try again.")
 
         #looking at cart options
-        if(option == "3"):
+        elif(option == "3"):
             print("Cart Menu:")
             print("0. Go back")
             print("1. View Cart")
@@ -103,7 +101,7 @@ def mainMenu(user, cart, inventory, history):
             if (c_input == "0"):
                 continue
 
-            if (c_input == "1"):
+            elif (c_input == "1"):
                 print("Here are the items in your cart:")
                 userID = user.getUserID()
                 cart.viewCart(userID)
@@ -131,12 +129,15 @@ def mainMenu(user, cart, inventory, history):
                 userID = user.getUserID()
                 cart.checkOut(userID)
 
+            else:
+                print("That's not a menu option. Please try again.")
+
         ## incorrect menu option
         else:
+            print(option)
             print("That's not a menu option. Please try again.")
 
         print()
-
 
 def main():
     print("Welcome to the online bookstore!\n")

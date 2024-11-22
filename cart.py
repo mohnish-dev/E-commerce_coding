@@ -93,17 +93,21 @@ class Cart:
         cursor.execute(bookISBNQuery, data)
         result = cursor.fetchall()
 
-        if(len(result) == 0):
+        if quantity < 1:
+            print("You can't add 0 or fewer books to your cart.")
+
+        elif(len(result) == 0):
             print("That book is not in our inventory.")
             
         elif(len(result) >= 1):
-            data = (ISBN,)
-            bookQuantityQuery = "SELECT Stock FROM Inventory WHERE ISBN=?"
-            cursor.execute(bookQuantityQuery, data)
-            result = cursor.fetchall()
-            bookQuantity = result[0][0]
+            #data = (ISBN,)
+            #bookQuantityQuery = "SELECT Stock FROM Inventory WHERE ISBN=?"
+            #cursor.execute(bookQuantityQuery, data)
+            #result = cursor.fetchall()
+            #bookQuantity = result[0][0]
+            bookQuantity = inventory.getStock(ISBN)
 
-            if(quantity < bookQuantity):
+            if(quantity <= bookQuantity):
 
                 cartQuantityQuery = "SELECT Quantity FROM Cart WHERE UserID=? AND ISBN=?"
                 data = (userID, ISBN)
@@ -146,8 +150,8 @@ class Cart:
             ## exits the program if unsuccessful
             sys.exit()
 
-        ISBNCartQuery = "SELECT ISBN FROM Cart WHERE ISBN=?"
-        data = (ISBN,)
+        ISBNCartQuery = "SELECT ISBN FROM Cart WHERE UserID=? AND ISBN=?"
+        data = (userID, ISBN)
 
         cursor = connection.cursor()
 
@@ -158,8 +162,8 @@ class Cart:
             print("That book is not in your cart.")
         
         elif(len(result) >= 1):
-            removeBookQuery = "DELETE FROM Cart WHERE ISBN=?"
-            data = (ISBN,)
+            removeBookQuery = "DELETE FROM Cart WHERE UserID=? AND ISBN=?"
+            data = (userID, ISBN,)
 
             cursor = connection.cursor()
             cursor.execute(removeBookQuery, data)
@@ -181,6 +185,8 @@ class Cart:
 
         cursor = connection.cursor()
 
+        successful = True
+
 
 
         cartItemsQuery = "SELECT ISBN FROM Cart WHERE UserID=?"
@@ -188,7 +194,6 @@ class Cart:
         cursor.execute(cartItemsQuery, data)
         result = cursor.fetchall()
 
-        print(result)
 
         inventoryItemList = []
 
@@ -198,56 +203,58 @@ class Cart:
             ISBN = result[i][0]
             inventoryItemList.append(ISBN)
             i = i + 1
-        print (inventoryItemList)
+        
+        if len(inventoryItemList) == 0:
+            print("Your cart is empty.")
+        else:
+            for item in inventoryItemList:
+                #inventoryStockQuery = "SELECT Stock FROM Inventory WHERE ISBN=?"
+                #data = (item,)
+                #cursor.execute(inventoryStockQuery, data)
+                #result = cursor.fetchall()
+                #inventoryStock = result[0][0]
+                inventoryStock = inventory.getStock(item)
 
+                cartStockQuery = "SELECT Quantity FROM Cart WHERE UserID=? AND ISBN=?"
+                data = (userID, item)
+                cursor.execute(cartStockQuery, data)
+                result = cursor.fetchall()
+                cartQuantity = result[0][0]
 
-        #for item in result:
-            #for item in result[i]:
-                #inventoryItemList.append(item)
-            #i = i + 1
-
-
-
-        for item in inventoryItemList:
-            inventoryStockQuery = "SELECT Stock FROM Inventory WHERE ISBN=?"
-            data = (item,)
-            cursor.execute(inventoryStockQuery, data)
-            result = cursor.fetchall()
-            inventoryStock = result[0][0]
-
-            cartStockQuery = "SELECT Quantity FROM Cart WHERE UserID=? AND ISBN=?"
-            data = (userID, item,)
-            cursor.execute(cartStockQuery, data)
-            result = cursor.fetchall()
-            cartStock = result[0][0]
-
-            updatedStock = inventoryStock - cartStock
+                updatedStock = inventoryStock - cartQuantity
 
 
 
-            if updatedStock < 0:
-                print(f"Too many books with ISBN {item} in the cart.")
-                successful = False
-                break
-            else:
-                inventoryUpdateQuery = "UPDATE Inventory SET Stock=? WHERE ISBN=?"
-                data = (updatedStock, ISBN)
-                cursor.execute(inventoryUpdateQuery, data)
-                connection.commit
-                #inventory.decreaseStock(ISBN, cartStock)
+                if updatedStock < 0:
+                    print(f"Too many books with ISBN {item} in the cart.")
+                    successful = False
+                    break
+                else:
+                    '''inventoryUpdateQuery = "UPDATE Inventory SET Stock=? WHERE ISBN=?"
+                    data = (updatedStock, item)
+                    cursor.execute(inventoryUpdateQuery, data)
+                    connection.commit'''
+                    ISBN = (item,)
+                    inventory.decreaseStock(ISBN, cartQuantity)
+                    #inventory.decreaseStock(ISBN, cartStock)
                 
-                removeBookQuery = "DELETE FROM Cart WHERE ISBN=?"
-                data = (ISBN,)
+                    removeBookQuery = "DELETE FROM Cart WHERE ISBN=?"
+                    data = (item,)
 
-                cursor = connection.cursor()
-                cursor.execute(removeBookQuery, data)
-                connection.commit()
+                    cursor = connection.cursor()
+                    cursor.execute(removeBookQuery, data)
+                    connection.commit()
 
-        if successful != False:
-            #for when the history class is complete
-            #history.createOrder(userID, quantity, cost, date)
-            #history.addOrderItems(userID, orderID)
-            print("Successfuly Checked Out!")
+            if successful != False:
+                #for when the history class is complete
+                #history.createOrder(userID, quantity, cost, date)
+                #history.addOrderItems(userID, orderID)
+                print("Successfuly Checked Out!")
+
+
+
+
+    
 
     
     def getCost(self, userID):
@@ -284,11 +291,12 @@ class Cart:
             result = cursor.fetchall()
             quantity = result[0][0]
 
-            ItemPriceQuery = "SELECT Price FROM Inventory WHERE ISBN=?"
-            data = (item,)
-            cursor.execute(ItemPriceQuery, data)
-            result = cursor.fetchall()
-            itemPrice = result[0][0]
+            #ItemPriceQuery = "SELECT Price FROM Inventory WHERE ISBN=?"
+            #data = (item,)
+            #cursor.execute(ItemPriceQuery, data)
+            #result = cursor.fetchall()
+            #itemPrice = result[0][0]
+            itemPrice = inventory.getPrice(item)
 
             itemCost = itemPrice * quantity
 
