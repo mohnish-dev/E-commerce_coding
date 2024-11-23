@@ -1,4 +1,4 @@
-from inventory import Inventory
+from inventory import Inventory  # Importing Inventory class to interact with inventory data
 import sqlite3  
 import sys 
 import random  
@@ -60,7 +60,7 @@ class OrderHistory:
             return
 
         # Fetch items associated with the order
-        query_items = "SELECT * FROM PurchaseItems WHERE purchaseID=?"
+        query_items = "SELECT * FROM OrderItems WHERE orderID=?"
         db_cursor.execute(query_items, (userID,))
         items = db_cursor.fetchall()
 
@@ -89,12 +89,12 @@ class OrderHistory:
 
             # Insert the new order into the Orders table
             db_cursor.execute(
-                "INSERT INTO Purchases (PurchaseID, CustomerID, ItemCount, TotalCost, PurchaseDate) VALUES (?, ?, ?, ?, ?)",
+                "INSERT INTO Orders (OrderNumber, UserID, ItemNumber, Cost, Date) VALUES (?, ?, ?, ?, ?)",
                 (orderID, userID, quantity, cost, date)
             )
 
             db_connection.commit()  # Commit changes to the database
-            print(f"Purchase {orderID} created successfully.")
+            print(f"Order {orderID} created successfully.")
         except sqlite3.Error as error:
             # Handle errors during order creation
             print(f"Error occurred while creating order: {error}")
