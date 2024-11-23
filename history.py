@@ -56,11 +56,11 @@ class OrderHistory:
             db_connection.close()
 
     def createOrder(self, userID: str, quantity: int, cost: float, date: str) -> str:
-        # Generate a unique order ID using random alphanumeric characters
-        orderID = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        # Generate a unique order ID using random numeric characters
+        orderID = ''.join(random.choices(string.digits, k=6))  # Ensuring order ID is numeric, matching the database format
 
         try:
-            # Establish a connection to the database
+            # Connect to the database
             db_connection = sqlite3.connect(self.db_name)
             db_cursor = db_connection.cursor()
 
@@ -83,34 +83,32 @@ class OrderHistory:
 
     def addOrderItems(self, userID: str, orderID: str) -> None:
         try:
-            # Establish a connection to the database
+            # Connect to the database
             db_connection = sqlite3.connect(self.db_name)
-        except:
-            # Handle database connection failure
-            print("Database connection failed.")
-            sys.exit()
+            db_cursor = db_connection.cursor()
 
-        db_cursor = db_connection.cursor()
+            # Query to fetch all items from the user's cart
+            query_cart = "SELECT * FROM Cart WHERE UserID=?"
+            db_cursor.execute(query_cart, (userID,))
+            cart_contents = db_cursor.fetchall()
 
-        # Query to fetch all items from the user's cart
-        query_cart = "SELECT * FROM Cart WHERE userID=?"
-        db_cursor.execute(query_cart, (userID,))
-        cart_contents = db_cursor.fetchall()
+            if not cart_contents:
+                # Notify the user if the cart is empty
+                print("Shopping cart is empty.")
+                db_connection.close()
+                return
 
-        if not cart_contents:
-            # Notify the user if the cart is empty
-            print("Shopping cart is empty.")
+            # Transfer each item from the cart to the OrderItems table
+            for cart_item in cart_contents:
+                query_add = "INSERT INTO OrderItems (OrderNumber, UserID, isbn, quantity) VALUES (?, ?, ?, ?)"
+                db_cursor.execute(query_add, (orderID, userID, cart_item[2], cart_item[3]))
+
+            # Clear the user's cart after transferring items
+            db_cursor.execute("DELETE FROM Cart WHERE UserID=?", (userID,))
+            db_connection.commit()  # Commit changes to the database
+
+            print("Cart items added to order successfully.")
+        except sqlite3.Error as error:
+            print(f"Error occurred while adding items to the order: {error}")
+        finally:
             db_connection.close()
-            return
-
-        # Transfer each item from the cart to the OrderItems table
-        for cart_item in cart_contents:
-            query_add = "INSERT INTO OrderItems (orderID, userID, isbn, quantity) VALUES (?, ?, ?, ?)"
-            db_cursor.execute(query_add, (orderID, userID, cart_item[2], cart_item[3]))
-
-        # Clear the user's cart after transferring items
-        db_cursor.execute("DELETE FROM Cart WHERE userID=?", (userID,))
-        db_connection.commit()  # Commit changes to the database
-
-        print("Cart items added to order successfully.")
-        db_connection.close()
