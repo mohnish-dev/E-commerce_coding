@@ -68,7 +68,6 @@ def mainMenu(user, cart, inventory, history):
 
         # looking at inventory options
         elif(option == "2"):
-            #initializing our option variable so that it's != 0
             print("Inventory Menu:")
             print("0. Go Back")
             print("1. View Inventory")
