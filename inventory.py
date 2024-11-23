@@ -1,12 +1,6 @@
 import sqlite3
 import sys
 
-"""
-To-do list:
-    - Try/except blocks
-    - Run through design document
-"""
-
 class Inventory:
 
     #constructor, passes the database name
