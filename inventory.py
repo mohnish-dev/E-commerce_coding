@@ -127,11 +127,6 @@ class Inventory:
         #have to actually commit the change
         connection.commit()
 
-        #displays the updated stock to the user
-        cursor.execute(stockQuery, ISBN)
-        stock = cursor.fetchall()[0][0]
-        print("The new stock is ", stock, ".\n", sep="")
-
         cursor.close()
         connection.close()
 
