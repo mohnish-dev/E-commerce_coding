@@ -37,7 +37,7 @@ class OrderHistory:
             # Connect to the database
             db_connection = sqlite3.connect(self.db_name)
             db_cursor = db_connection.cursor()
-
+            '''
             # Fetch specific order details
             query = "SELECT * FROM Orders WHERE OrderNumber=? AND UserID=?"
             db_cursor.execute(query, (orderNumber, userID))
@@ -48,7 +48,57 @@ class OrderHistory:
             else:
                 print(f"Order Details:")
                 print(f"OrderNumber: {order[0]}, Items: {order[2]}, Cost: {order[3]}, Date: {order[4]}")
-            print()
+            print()'''
+
+
+
+            ISBNList = []
+
+            ISBNQuery = "SELECT ISBN From OrderItems WHERE OrderNumber=?"
+            data = (orderNumber,)
+            db_cursor.execute(ISBNQuery, data)
+            result = db_cursor.fetchall()
+            i = 0
+
+            for item in result:
+                ISBN = result[i][0]
+                ISBNList.append(ISBN)
+                i = i + 1
+
+            if len(ISBNList) == 0:
+                print("There are no items in your order to view.")
+
+            else:
+                print("Here are the items in your order:")
+                for ISBN in ISBNList:
+                    CartInventoryQuery = "SELECT * FROM Inventory WHERE ISBN=?"
+                    data = (ISBN,)
+
+                    db_cursor.execute(CartInventoryQuery, data)
+                    result2 = db_cursor.fetchall()
+
+                    OrderQuantityQuery = "SELECT Quantity FROM OrderItems WHERE OrderNumber=? AND ISBN=?"
+
+                    data = (orderNumber, ISBN,)
+
+                    db_cursor.execute(OrderQuantityQuery, data)
+
+                    result = db_cursor.fetchall()
+
+                    orderItemQuantity = result[0][0]
+
+                    
+
+                    for row in result2:
+
+                        print('"', row[1], '" by ', row[2], ':', sep="")
+                        print("\tISBN:", row[0])
+                        print("\tGenre:", row[3])
+                        print("\tPages:", row[4])
+                        print("\tRelease Date:", row[5])
+                        print("\tAmount in Order:", orderItemQuantity)
+                        print("\tPrice: $", row[6], sep="")
+                        print()
 
         except sqlite3.Error as e:
             print(f"Database error: {e}")
@@ -56,15 +106,18 @@ class OrderHistory:
             db_connection.close()
 
     def createOrder(self, userID: str, quantity: int, cost: float, date: str) -> str:
-        # Generate a unique order ID using random numeric characters
-        orderID = ''.join(random.choices(string.digits, k=6))  # Ensuring order ID is numeric, matching the database format
+        # Generate a unique order ID using random alphanumeric characters
+        orderID = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
 
         try:
-            # Connect to the database
+            # Establish a connection to the database
             db_connection = sqlite3.connect(self.db_name)
             db_cursor = db_connection.cursor()
 
             # Insert the new order into the Orders table
+            cost = str(cost)
+
+            cost = "$" + cost
             db_cursor.execute(
                 "INSERT INTO Orders (OrderNumber, UserID, ItemNumber, Cost, Date) VALUES (?, ?, ?, ?, ?)",
                 (orderID, userID, quantity, cost, date)
@@ -83,32 +136,34 @@ class OrderHistory:
 
     def addOrderItems(self, userID: str, orderID: str) -> None:
         try:
-            # Connect to the database
+            # Establish a connection to the database
             db_connection = sqlite3.connect(self.db_name)
-            db_cursor = db_connection.cursor()
+        except:
+            # Handle database connection failure
+            print("Database connection failed.")
+            sys.exit()
 
-            # Query to fetch all items from the user's cart
-            query_cart = "SELECT * FROM Cart WHERE UserID=?"
-            db_cursor.execute(query_cart, (userID,))
-            cart_contents = db_cursor.fetchall()
+        db_cursor = db_connection.cursor()
 
-            if not cart_contents:
-                # Notify the user if the cart is empty
-                print("Shopping cart is empty.")
-                db_connection.close()
-                return
+        # Query to fetch all items from the user's cart
+        query_cart = "SELECT * FROM Cart WHERE userID=?"
+        db_cursor.execute(query_cart, (userID,))
+        cart_contents = db_cursor.fetchall()
 
-            # Transfer each item from the cart to the OrderItems table
-            for cart_item in cart_contents:
-                query_add = "INSERT INTO OrderItems (OrderNumber, UserID, isbn, quantity) VALUES (?, ?, ?, ?)"
-                db_cursor.execute(query_add, (orderID, userID, cart_item[2], cart_item[3]))
-
-            # Clear the user's cart after transferring items
-            db_cursor.execute("DELETE FROM Cart WHERE UserID=?", (userID,))
-            db_connection.commit()  # Commit changes to the database
-
-            print("Cart items added to order successfully.")
-        except sqlite3.Error as error:
-            print(f"Error occurred while adding items to the order: {error}")
-        finally:
+        if not cart_contents:
+            # Notify the user if the cart is empty
+            print("Shopping cart is empty.")
             db_connection.close()
+            return
+
+        # Transfer each item from the cart to the OrderItems table
+        for cart_item in cart_contents:
+            query_add = "INSERT INTO OrderItems (OrderNumber, ISBN, Quantity) VALUES (?, ?, ?)"
+            db_cursor.execute(query_add, (orderID, cart_item[1], cart_item[2]))
+
+        # Clear the user's cart after transferring items
+        db_cursor.execute("DELETE FROM Cart WHERE userID=?", (userID,))
+        db_connection.commit()  # Commit changes to the database
+
+        print("Cart items added to order successfully.")
+        db_connection.close()
