@@ -10,73 +10,50 @@ class OrderHistory:
 
     def viewHistory(self, userID: str) -> None:
         try:
-            # Establish a connection to the database
+            # Connect to the database
             db_connection = sqlite3.connect(self.db_name)
-        except:
-            # Handle database connection failure
-            print("Database connection failed.")
-            sys.exit()
+            db_cursor = db_connection.cursor()
 
-        db_cursor = db_connection.cursor()
+            # Fetch all orders for the specified UserID
+            query = "SELECT * FROM Orders WHERE UserID=?"
+            db_cursor.execute(query, (userID,))
+            orders = db_cursor.fetchall()
 
-        # Query to fetch all orders for the specified user
-        query = "SELECT * FROM Orders WHERE userID=?"
-        db_cursor.execute(query, (userID,))
-        orders = db_cursor.fetchall()
+            if not orders:
+                print("No order history found for this user.")
+            else:
+                print(f"Order History for User {userID}:")
+                for order in orders:
+                    print(f"OrderNumber: {order[0]}, Items: {order[2]}, Cost: {order[3]}, Date: {order[4]}")
+            print()
 
-        if not orders:
-            # Notify the user if no orders exist
-            print("No order records found.")
-        else:
-            # Display all orders
-            print("Order History:")
-            for order in orders:
-                print(f"Order ID: {order[0]}, Date: {order[3]}, Total Cost: ${order[2]:.2f}")
-        print()
-
-        # Close the database connection
-        db_connection.close()
-
-    def viewOrder(self, userID: str, orderID: str) -> None:
-        try:
-            # Establish a connection to the database
-            db_connection = sqlite3.connect(self.db_name)
-        except:
-            # Handle database connection failure
-            print("Database failed to connect.")
-            sys.exit()
-
-        db_cursor = db_connection.cursor()
-
-        # Verify the order belongs to the specified user
-        query = "SELECT * FROM Orders WHERE orderID=? AND userID=?"
-        db_cursor.execute(query, (orderID, userID))
-        order = db_cursor.fetchone()
-
-        if not order:
-            # Notify the user if the order is not found
-            print("Order not found.")
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+        finally:
             db_connection.close()
-            return
 
-        # Fetch items associated with the order
-        query_items = "SELECT * FROM OrderItems WHERE orderID=?"
-        db_cursor.execute(query_items, (userID,))
-        items = db_cursor.fetchall()
+    def viewOrder(self, userID: str, orderNumber: str) -> None:
+        try:
+            # Connect to the database
+            db_connection = sqlite3.connect(self.db_name)
+            db_cursor = db_connection.cursor()
 
-        # Display order details
-        print(f"Purchase ID: {orderID}, Date: {order[3]}, Total Cost: ${order[2]:.2f}")
-        inventory_helper = Inventory()  # Initialize the Inventory class
+            # Fetch specific order details
+            query = "SELECT * FROM Orders WHERE OrderNumber=? AND UserID=?"
+            db_cursor.execute(query, (orderNumber, userID))
+            order = db_cursor.fetchone()
 
-        # Display item details for the order
-        for item in items:
-            item_info = inventory_helper.search_inventory_by_isbn(item[2])  # Fetch item details from inventory
-            if item_info:
-                print(f"Title: {item_info[1]}, Quantity: {item[3]}")
-        print()
+            if not order:
+                print("Order not found or does not belong to this user.")
+            else:
+                print(f"Order Details:")
+                print(f"OrderNumber: {order[0]}, Items: {order[2]}, Cost: {order[3]}, Date: {order[4]}")
+            print()
 
-        # Close the database connection
-        db_connection.close()
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+        finally:
+            db_connection.close()
 
     def createOrder(self, userID: str, quantity: int, cost: float, date: str) -> str:
         # Generate a unique order ID using random alphanumeric characters
