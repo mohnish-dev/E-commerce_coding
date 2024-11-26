@@ -32,7 +32,7 @@ class OrderHistory:
         finally:
             db_connection.close()
 
-    def viewOrder(self, userID: str, orderNumber: str) -> None:
+    def viewOrder(self, userID: str, orderID: str) -> None:
         try:
             # Connect to the database
             db_connection = sqlite3.connect(self.db_name)
@@ -55,7 +55,7 @@ class OrderHistory:
             ISBNList = []
 
             ISBNQuery = "SELECT ISBN From OrderItems WHERE OrderNumber=?"
-            data = (orderNumber,)
+            data = (orderID,)
             db_cursor.execute(ISBNQuery, data)
             result = db_cursor.fetchall()
             i = 0
@@ -66,7 +66,7 @@ class OrderHistory:
                 i = i + 1
 
             if len(ISBNList) == 0:
-                print("There are no items in your order to view.")
+                print("The order you are looking for does not exist.")
 
             else:
                 print("Here are the items in your order:")
@@ -79,7 +79,7 @@ class OrderHistory:
 
                     OrderQuantityQuery = "SELECT Quantity FROM OrderItems WHERE OrderNumber=? AND ISBN=?"
 
-                    data = (orderNumber, ISBN,)
+                    data = (orderID, ISBN,)
 
                     db_cursor.execute(OrderQuantityQuery, data)
 
@@ -164,7 +164,7 @@ class OrderHistory:
         db_cursor = db_connection.cursor()
 
         # Query to fetch all items from the user's cart
-        query_cart = "SELECT * FROM Cart WHERE userID=?"
+        query_cart = "SELECT * FROM Cart WHERE UserID=?"
         db_cursor.execute(query_cart, (userID,))
         cart_contents = db_cursor.fetchall()
 
@@ -176,12 +176,17 @@ class OrderHistory:
 
         # Transfer each item from the cart to the OrderItems table
         for cart_item in cart_contents:
-            query_add = "INSERT INTO OrderItems (OrderNumber, ISBN, Quantity) VALUES (?, ?, ?)"
-            db_cursor.execute(query_add, (orderID, cart_item[1], cart_item[2]))
+            #query_add = "INSERT INTO OrderItems (OrderNumber, ISBN, Quantity) VALUES (?, ?, ?)"
+            #data = (orderID, cart_item[1], cart_item[2])
+            #db_cursor.execute(query_add, (orderID, cart_item[1], cart_item[2]))
+            orderItemsAddQuery = "INSERT INTO OrderItems (OrderNumber, ISBN, Quantity) VALUES (?, ?, ?)"
+            data = (orderID, cart_item[1], cart_item[2])
+            db_cursor.execute(orderItemsAddQuery, data)
+            db_connection.commit()
 
         # Clear the user's cart after transferring items
-        db_cursor.execute("DELETE FROM Cart WHERE userID=?", (userID,))
-        db_connection.commit()  # Commit changes to the database
+        #db_cursor.execute("DELETE FROM Cart WHERE userID=?", (userID,))
+        #db_connection.commit()  # Commit changes to the database
 
         print("Cart items added to order successfully.")
         db_connection.close()
