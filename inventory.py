@@ -28,8 +28,6 @@ class Inventory:
         #actually getting the results of the query (list of tuples)
         result = cursor.fetchall()
 
-        print("\nInventory Results:\n\n")
-
         #outputs each item in inventory and its information in a formatted way
         #ensures the list isn't empty
         if len(result) > 0:
@@ -105,7 +103,7 @@ class Inventory:
             cursor.execute(stockQuery, ISBN)
             #list of tuple, so using [0][0] to get the actual value
             stock = cursor.fetchall()[0][0]
-        #if it doesn't exist in Inventory
+        #if it doesn't exist in inventory
         except IndexError:
             print("Could not decrease the stock of ", ISBN[0], "; please make sure the ISBN is correct.\n", sep="")
             return
@@ -126,6 +124,7 @@ class Inventory:
         cursor.execute(decreaseQuery, data)
         #have to actually commit the change
         connection.commit()
+        #if it doesn't exist in Inventory
 
         cursor.close()
         connection.close()
