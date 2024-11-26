@@ -106,18 +106,36 @@ class OrderHistory:
             db_connection.close()
 
     def createOrder(self, userID: str, quantity: int, cost: float, date: str) -> str:
-        # Generate a unique order ID using random alphanumeric characters
-        orderID = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        while True:
+            # Generate a 6-digit numeric OrderID
+            orderID = str(random.randint(100000, 999999))
+
+            try:
+                # Establish a connection to the database
+                db_connection = sqlite3.connect(self.db_name)
+                db_cursor = db_connection.cursor()
+
+                # Check if the generated orderID already exists in the Orders table
+                db_cursor.execute("SELECT COUNT(*) FROM Orders WHERE OrderNumber = ?", (orderID,))
+                if db_cursor.fetchone()[0] == 0:
+                    break  # The orderID is unique, break the loop
+
+            except sqlite3.Error as error:
+                # Handle errors during ID validation
+                print(f"Error occurred while checking order ID uniqueness: {error}")
+            finally:
+                # Ensure the database connection is closed after checking
+                db_connection.close()
 
         try:
-            # Establish a connection to the database
+            # Reconnect to the database to insert the new order
             db_connection = sqlite3.connect(self.db_name)
             db_cursor = db_connection.cursor()
 
-            # Insert the new order into the Orders table
-            cost = str(cost)
+            # Format the cost as a string with a dollar sign
+            cost = f"${cost:.2f}"
 
-            cost = "$" + cost
+            # Insert the new order into the Orders table
             db_cursor.execute(
                 "INSERT INTO Orders (OrderNumber, UserID, ItemNumber, Cost, Date) VALUES (?, ?, ?, ?, ?)",
                 (orderID, userID, quantity, cost, date)
