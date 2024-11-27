@@ -88,7 +88,7 @@ class Cart:
                     print("\tAmount in Cart:", cartQuantity)
                     print("\tPrice: $", row[6], sep="")
                     print()
-                cursor.close()
+            cursor.close()
             connection.close()
 
 
