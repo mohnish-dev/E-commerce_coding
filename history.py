@@ -1,8 +1,7 @@
 from inventory import Inventory  # Importing Inventory class to interact with inventory data
 import sqlite3  
 import sys  
-import random  
-import string  
+import random   
 
 class OrderHistory:
     def __init__(self, db_name="methods.db"):
@@ -51,12 +50,20 @@ class OrderHistory:
             db_connection = sqlite3.connect(self.db_name)
             db_cursor = db_connection.cursor()
 
+            # Check if the order belongs to the user
+            ownership_query = "SELECT UserID FROM Orders WHERE OrderNumber=?"
+            db_cursor.execute(ownership_query, (orderID,))
+            owner_result = db_cursor.fetchone()
+
+            if not owner_result or owner_result[0] != userID:
+                print("You are not authorized to view this order.")
+                return
+
             ISBNList = []  # List to store ISBNs in the order
 
             # Query to fetch ISBNs of items in the order
             ISBNQuery = "SELECT ISBN From OrderItems WHERE OrderNumber=?"
-            data = (orderID,)
-            db_cursor.execute(ISBNQuery, data)
+            db_cursor.execute(ISBNQuery, (orderID,))
             result = db_cursor.fetchall()
             i = 0
 
@@ -102,6 +109,7 @@ class OrderHistory:
         finally:
             # Ensure the database connection is closed
             db_connection.close()
+
 
     def createOrder(self, userID: str, quantity: int, cost: float, date: str) -> str:
         """
