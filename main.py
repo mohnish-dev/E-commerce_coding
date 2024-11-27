@@ -3,7 +3,6 @@ from cart import *
 from inventory import *
 from history import *
 
-
 ## COMPLETE initial pre-login menu
 def initialMenu():
     ## objects for the classes
@@ -61,6 +60,10 @@ def mainMenu(user, cart, inventory, history):
             user.logout()
 
             print("Successful logout.")
+
+        #account info
+        elif(option == "1"):
+            user.viewAccountInformation()
 
         # looking at inventory options
         elif(option == "2"):
