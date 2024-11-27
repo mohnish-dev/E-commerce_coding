@@ -2,7 +2,6 @@ from inventory import Inventory  # Importing Inventory class to interact with in
 import sqlite3  
 import sys  
 import random  
-import string  
 
 class OrderHistory:
     def __init__(self, db_name="methods.db"):
